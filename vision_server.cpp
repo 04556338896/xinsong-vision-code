@@ -61,6 +61,7 @@ enum Processor { cl, gl, cpu };
 //vector<TrackingBox> object_detect(vector<Point> contour,vector<vector<Point>> contours,vector<TrackingBox>detData,Mat roatated2,vector<Point2f> tran_coverpoint,vector<WheelPoint>allWheel);
 //Location object_tracking(Mat roatated2,TrackingBox dbm,int objcount,vector<vector<TrackingBox>> preFrameData);
 vector<TrackingBox> object_detect1(vector<Point> contour,vector<vector<Point>> contours,vector<TrackingBox>detData,Mat roatated2,vector<Point2f> tran_coverpoint,vector<WheelPoint>allWheel);
+Location object_tracking1(Mat roatated2,TrackingBox dbm,int objcount,vector<vector<TrackingBox>> preFrameData);
 Mat unwarp;
 
 
@@ -139,6 +140,7 @@ int main(int argc, char** argv)
     Mat depthmat, depthmatUndistorted, rgbd, rgbd2;
 
     //------------读取平台所有模块上全向轮的编号、中心点和角度信息并存入数组--------------
+    //ifstream in("/home/zhaojiaqi/桌面/wheels_num.txt");//这里需要修改
     ifstream in("/home/soft/catkin_ws/src/vision_module/wheels_num.txt");//这里需要修改
     istringstream iss;
     string line;
@@ -357,7 +359,8 @@ int main(int argc, char** argv)
                {
                    for (int m = 0; m < detFrameData.back().size(); m++) {
                         Location c_tb;
-                        c_tb=object_tracking(roatated2,detFrameData.back()[m],objcount,preFrameData);
+                        //c_tb=object_tracking(roatated2,detFrameData.back()[m],objcount,preFrameData);
+			 c_tb=object_tracking1(roatated2,detFrameData.back()[m],objcount,preFrameData);
                         detFrameData.back()[m].id=c_tb.cid;
                         objcount=c_tb.cobj;
                     }
@@ -500,13 +503,13 @@ vector<TrackingBox> object_detect1(vector<Point> contour,vector<vector<Point>> c
 				nver[3] = ver[j];
 			}
 		}
-		cout << nver[0] << "  " << nver[1] << "  "<< nver[2]<<"  "<<nver[3]<<endl;
+		//cout << nver[0] << "  " << nver[1] << "  "<< nver[2]<<"  "<<nver[3]<<endl;
 
 		double dis01 = 0, dis03 = 0;
 		double frameangle=0;
 		dis01 = sqrt(pow(nver[0].x - nver[1].x, 2) +pow(nver[0].y - nver[1].y, 2));
 		dis03 = sqrt(pow(nver[0].x - nver[3].x, 2) + pow(nver[0].y - nver[3].y, 2));
-		cout << dis01 << "  " << dis03 << endl;
+		//cout << dis01 << "  " << dis03 << endl;
 		if (dis01 > dis03)
 		{
 			frameangle = (-atan((nver[1].y - nver[0].y) / (nver[1].x - nver[0].x)))*180/3.1415927;
@@ -535,6 +538,7 @@ vector<TrackingBox> object_detect1(vector<Point> contour,vector<vector<Point>> c
     perspectiveTransform(warped_obj_center,unwarp_obj_center,unwarp);
 
     tb.objcenter = unwarp_obj_center.back();//*******存储目标中心点******
+    tb.warp_objcenter=  warped_obj_center.back();
 
     unwarp_obj_center.clear();
     warped_obj_center.clear();
@@ -556,7 +560,7 @@ vector<TrackingBox> object_detect1(vector<Point> contour,vector<vector<Point>> c
     return detData;
 }
 
-/*Location object_tracking(Mat roatated2,TrackingBox dbm,int objcount,vector<vector<TrackingBox>> preFrameData)
+Location object_tracking1(Mat roatated2,TrackingBox dbm,int objcount,vector<vector<TrackingBox>> preFrameData)
 {
         Location tb;
         bool matched = false;
@@ -565,7 +569,7 @@ vector<TrackingBox> object_detect1(vector<Point> contour,vector<vector<Point>> c
             double dist = sqrt(
                     pow(dbm.objcenter.x - preFrameData.back()[n].objcenter.x, 2) +
                     pow(dbm.objcenter.y - preFrameData.back()[n].objcenter.y, 2));
-            if (dist < 50)
+            if (dist < 100)
             {
                 dbm.id = preFrameData.back()[n].id;
                 matched = true;
@@ -580,12 +584,12 @@ vector<TrackingBox> object_detect1(vector<Point> contour,vector<vector<Point>> c
         }
         char tam[100];
         sprintf(tam, "%d ", dbm.id);
-        putText(roatated2, tam, dbm.objcenter, FONT_HERSHEY_SIMPLEX, 0.8,
-                Scalar(0,0,0),
-                1);
+        //putText(roatated2, tam, dbm.objcenter, FONT_HERSHEY_SIMPLEX, 0.8,Scalar(0,0,0), 1);
+	putText(roatated2, tam, dbm.warp_objcenter, FONT_HERSHEY_SIMPLEX, 0.8,Scalar(0,0,0), 1);
+                     
         tb.cid=dbm.id;
         tb.cobj=objcount;
         return tb;
-}*/
+}
 
 
