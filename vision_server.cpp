@@ -458,7 +458,7 @@ vector<TrackingBox> object_detect1(vector<Point> contour,vector<vector<Point>> c
                 //y最小 nver[0]  y最大  nver[2]
 		for (int j = 0; j < 4; j++)
 		{
-			//line(src, ver[j], ver[(j + 1) % 4], Scalar(0, 0, 255));
+			line(roatated2, ver[j], ver[(j + 1) % 4], Scalar(255, 255, 255));
 			if (ver[j].y < ty)
 			{
 				ty = ver[j].y;
