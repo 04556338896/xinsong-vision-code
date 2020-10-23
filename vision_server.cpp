@@ -309,7 +309,7 @@ int main(int argc, char** argv)
 	   {
 		   double area = contourArea(contours[i]);
 
-			if (area < 350){
+			if (area < 800){
 			for(int k=0;k<contours[i].size();k++)
 				{
 					roatated2.at<uchar>(contours[i][k].y,contours[i][k].x)=0;
